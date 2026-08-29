@@ -1,0 +1,27 @@
+{
+  "name": "mcp-interceptor",
+  "version": "0.1.0",
+  "description": "AgentGate MCP Interception Layer — entry point for the laptop-side enforcement pipeline",
+  "private": true,
+  "type": "module",
+  "main": "dist/interceptor.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/interceptor.js",
+    "dev": "node --loader ts-node/esm src/interceptor.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^4.1.11"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

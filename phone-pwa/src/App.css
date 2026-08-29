@@ -8,14 +8,14 @@
   position: relative;
 }
 
-/* Subtle corner bracket details — updated to blue tones */
+/* Subtle corner bracket details — gold visual language */
 .app-container::before,
 .app-container::after {
   content: '';
   position: fixed;
   width: 40px;
   height: 40px;
-  border: 1px solid rgba(107, 158, 255, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.12);
   pointer-events: none;
   z-index: 1;
 }
@@ -48,14 +48,14 @@
   font-weight: 900;
   letter-spacing: 0.15em;
   color: var(--text-primary);
-  /* Blue underline accent */
-  border-bottom: 1px solid rgba(107, 158, 255, 0.15);
-  padding-bottom: 2px;
-  transition: border-color 0.3s ease;
+  /* Gold underline accent */
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 4px;
+  transition: all 0.3s ease;
 }
 
 .logo-brand:hover {
-  border-bottom-color: var(--color-accent);
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 .menu-btn {
@@ -119,14 +119,15 @@
 /* Gold accent word in hero headline */
 .hero-headline-gold {
   color: var(--color-accent);
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
 /* Menu overlay drawer */
 .menu-overlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, rgba(8, 18, 32, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
-  border-left: 1px solid rgba(107, 158, 255, 0.15);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(20, 20, 20, 0.98) 100%);
+  border-left: 1px solid rgba(255, 215, 0, 0.15);
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -283,12 +284,11 @@
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  border-top: 1px solid rgba(107, 158, 255, 0.1);
-  border-bottom: 1px solid rgba(107, 158, 255, 0.1);
+  border-top: 1px solid rgba(255, 215, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
   padding: 18px 0;
   margin-bottom: 80px;
-  background-color: rgba(107, 158, 255, 0.04);
-  backdrop-filter: blur(8px);
+  background-color: rgba(255, 215, 0, 0.02);
 }
 
 .marquee-content {
@@ -352,8 +352,8 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(107, 158, 255, 0.12) 20%,
-    rgba(107, 158, 255, 0.12) 80%,
+    rgba(255, 215, 0, 0.15) 20%,
+    rgba(255, 215, 0, 0.15) 80%,
     transparent 100%
   );
 }
@@ -368,20 +368,20 @@
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.15em;
-  color: var(--color-accent);   /* Blue section labels */
+  color: var(--color-accent);   /* Gold section labels */
   text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* Blue line extending beside section label */
+/* Gold line extending beside section label */
 .section-num::after {
   content: '';
   display: inline-block;
   width: 24px;
   height: 1px;
-  background-color: rgba(107, 158, 255, 0.2);
+  background-color: rgba(255, 215, 0, 0.2);
   vertical-align: middle;
 }
 
@@ -468,8 +468,8 @@
   line-height: 0.95;
   letter-spacing: -0.05em;
   color: var(--text-primary);
-  /* Subtle blue glow on the big number */
-  text-shadow: 0 0 80px rgba(107, 158, 255, 0.12);
+  /* Subtle gold glow on the big number */
+  text-shadow: 0 0 80px rgba(255, 215, 0, 0.12);
 }
 
 .stat-status {
@@ -480,14 +480,13 @@
   margin-top: 4px;
 }
 
-/* Telemetry Table (Security Section) — Glassmorphism */
+/* Telemetry Table (Security Section) */
 .telemetry-table {
   margin-bottom: 24px;
-  border: 1px solid rgba(107, 158, 255, 0.15);
-  border-radius: 16px;
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 8px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px);
+  background: rgba(255, 215, 0, 0.02);
 }
 
 .telemetry-row {
@@ -495,7 +494,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(107, 158, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -508,7 +507,7 @@
 }
 
 .telemetry-row:hover {
-  background-color: rgba(107, 158, 255, 0.06);
+  background-color: rgba(255, 215, 0, 0.05);
 }
 
 .telemetry-key {
@@ -518,7 +517,7 @@
 
 .telemetry-dots {
   flex-grow: 1;
-  border-bottom: 1px dotted rgba(107, 158, 255, 0.15);
+  border-bottom: 1px dotted rgba(255, 215, 0, 0.15);
   margin: 0 12px;
   position: relative;
   top: 4px;
@@ -544,14 +543,14 @@
   color: var(--text-muted);
 }
 
-/* Editorial Buttons — Updated with blue tones and glassmorphism */
+/* Editorial Buttons — Gold primary, black text */
 .editorial-btn {
   display: inline-flex;
   align-items: center;
   gap: 16px;
-  background: rgba(107, 158, 255, 0.08);
-  color: var(--text-primary);
-  border: 1px solid rgba(107, 158, 255, 0.25);
+  background: linear-gradient(135deg, #FFD700 0%, #FFC700 100%);
+  color: #000000;
+  border: none;
   border-radius: 12px;
   padding: 16px 32px;
   font-size: 0.8rem;
@@ -563,15 +562,15 @@
   justify-content: space-between;
   min-height: 52px;
   position: relative;
-  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  cursor: pointer;
 }
 
 .editorial-btn:disabled {
-  opacity: 0.35;
+  opacity: 0.5;
   cursor: not-allowed;
-  border-style: dashed;
-  border-color: rgba(107, 158, 255, 0.1);
-  background: rgba(107, 158, 255, 0.03);
+  background: linear-gradient(135deg, #A0A0A0 0%, #808080 100%);
+  box-shadow: none;
 }
 
 .btn-label-arrow {
@@ -581,9 +580,14 @@
 }
 
 .editorial-btn:not(:disabled):hover {
-  border-color: var(--color-accent);
-  background: rgba(107, 158, 255, 0.15);
-  box-shadow: 0 0 20px rgba(107, 158, 255, 0.15);
+  background: linear-gradient(135deg, #FFE744 0%, #FFD700 100%);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.editorial-btn:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
 }
 
 .editorial-btn:not(:disabled):hover .btn-label-arrow {
@@ -598,7 +602,7 @@
 /* Footer styling */
 .app-footer {
   margin-top: 80px;
-  border-top: 1px solid rgba(107, 158, 255, 0.1);
+  border-top: 1px solid rgba(255, 215, 0, 0.1);
   padding-top: 40px;
   padding-bottom: 24px;
 }
@@ -736,7 +740,7 @@
     display: grid;
     grid-template-columns: 1fr 1.5fr;
     gap: 60px;
-    border-top: 1px solid rgba(107, 158, 255, 0.12);
+    border-top: 1px solid rgba(255, 215, 0, 0.12);
     padding-top: 40px;
     margin-bottom: 120px;
   }
