@@ -379,6 +379,15 @@ describe("Production ProposeActionInputSchema — input validation boundary", ()
     expect(result.success).toBe(false);
   });
 
+  it("rejects unexpected proposal fields rather than silently dropping them", () => {
+    const result = ProposeActionInputSchema.safeParse({
+      command: "git status",
+      target: "local-repo",
+      executeImmediately: true,
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("rejects null input", () => {
     const result = ProposeActionInputSchema.safeParse(null);
     expect(result.success).toBe(false);
@@ -413,6 +422,14 @@ describe("Production CheckStatusInputSchema — status polling input boundary", 
   it("rejects a non-string action_id", () => {
     const result = CheckStatusInputSchema.safeParse({
       action_id: 12345,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects unexpected status-query fields", () => {
+    const result = CheckStatusInputSchema.safeParse({
+      action_id: "123e4567-e89b-12d3-a456-426614174000",
+      forceApprove: true,
     });
     expect(result.success).toBe(false);
   });

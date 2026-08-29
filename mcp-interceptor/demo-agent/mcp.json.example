@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "agentgate": {
+      "command": "node",
+      "args": ["<ABSOLUTE_PATH_TO_REPO>/mcp-interceptor/dist/interceptor.js"]
+    }
+  }
+}

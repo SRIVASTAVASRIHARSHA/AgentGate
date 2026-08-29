@@ -30,6 +30,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { randomUUID } from "crypto";
+import { pathToFileURL } from "node:url";
 import { hashAction } from "./hashing/hash.js";
 import { addPending, getAction } from "./pendingStore.js";
 import { notifyRelay } from "./relayClient.js";
@@ -87,7 +88,7 @@ export const ProposeActionInputSchema = z.object({
     .record(z.string(), z.unknown())
     .optional()
     .describe("Additional structured parameters (optional)"),
-});
+}).strict();
 
 /**
  * Schema for the check_action_status MCP tool input.
@@ -97,7 +98,7 @@ export const CheckStatusInputSchema = z.object({
     .string()
     .uuid("action_id must be a valid UUID")
     .describe("The action_id returned by a previous propose_action call"),
-});
+}).strict();
 
 // ---------------------------------------------------------------------------
 // Normalization
@@ -153,10 +154,8 @@ export function buildProposedAction(
 // MCP server setup
 // ---------------------------------------------------------------------------
 
-export const server = new McpServer({
-  name: "agentgate-interceptor",
-  version: "0.1.0",
-});
+/** Register AgentGate's proposal-only tools on a new MCP server instance. */
+function registerTools(server: McpServer): void {
 
 // ---------------------------------------------------------------------------
 // Tool: propose_action
@@ -175,11 +174,14 @@ export const server = new McpServer({
  * action. Execution only happens via the Execution Gate after a valid,
  * action-bound authorization is received from the phone.
  */
-server.tool(
+server.registerTool(
   "propose_action",
-  "Submit an agent action to AgentGate for human approval before execution. " +
-    "Returns an action_id the agent uses to poll check_action_status.",
-  ProposeActionInputSchema.shape,
+  {
+    description:
+      "Submit an agent action to AgentGate for human approval before execution. " +
+      "Returns an action_id the agent uses to poll check_action_status.",
+    inputSchema: ProposeActionInputSchema,
+  },
   async (rawInput): Promise<{ content: Array<{ type: "text"; text: string }> }> => {
     // --- 1. Validate input ---
     const parseResult = ProposeActionInputSchema.safeParse(rawInput);
@@ -254,11 +256,14 @@ server.tool(
  *   BLOCKED   — gate blocked the action; agent must not retry with same action
  *   EXECUTED  — action ran successfully
  */
-server.tool(
+server.registerTool(
   "check_action_status",
-  "Poll the current status of a previously proposed action. " +
-    "Call repeatedly until status is no longer PENDING.",
-  CheckStatusInputSchema.shape,
+  {
+    description:
+      "Poll the current status of a previously proposed action. " +
+      "Call repeatedly until status is no longer PENDING.",
+    inputSchema: CheckStatusInputSchema,
+  },
   async (rawInput): Promise<{ content: Array<{ type: "text"; text: string }> }> => {
     // --- 1. Validate input ---
     const parseResult = CheckStatusInputSchema.safeParse(rawInput);
@@ -313,6 +318,23 @@ server.tool(
   }
 );
 
+}
+
+/**
+ * Create an isolated interceptor server. Tests use this factory to exercise
+ * the public MCP protocol without starting a stdio process.
+ */
+export function createInterceptorServer(): McpServer {
+  const server = new McpServer({
+    name: "agentgate-interceptor",
+    version: "0.1.0",
+  });
+  registerTools(server);
+  return server;
+}
+
+export const server = createInterceptorServer();
+
 // ---------------------------------------------------------------------------
 // Transport and startup
 // ---------------------------------------------------------------------------
@@ -334,7 +356,13 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((err) => {
-  console.error("[interceptor] Fatal startup error:", err);
-  process.exit(1);
-});
+const isDirectExecution =
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isDirectExecution) {
+  main().catch((err) => {
+    console.error("[interceptor] Fatal startup error:", err);
+    process.exit(1);
+  });
+}
