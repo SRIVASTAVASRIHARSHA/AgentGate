@@ -33,7 +33,7 @@ import { randomUUID } from "crypto";
 import { pathToFileURL } from "node:url";
 import { hashAction } from "./hashing/hash.js";
 import { addPending, getAction } from "./pendingStore.js";
-import { notifyRelay } from "./relayClient.js";
+import { notifyRelay, initRelayClient } from "./relayClient.js";
 import type {
   ActionStatusResult,
   ActionType,
@@ -349,6 +349,7 @@ export const server = createInterceptorServer();
 async function main(): Promise<void> {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+  initRelayClient();
   // Log to stderr only — stdout is reserved for the MCP protocol
   console.error("[interceptor] AgentGate MCP interceptor started (stdio)");
   console.error(

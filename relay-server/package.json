@@ -1,0 +1,26 @@
+{
+  "name": "agentgate-relay-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/relay.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/relay.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.0.0",
+    "socket.io-client": "^4.8.1",
+    "typescript": "^5.5.0",
+    "vitest": "^4.1.11"
+  },
+  "engines": { "node": ">=22.5.0" }
+}
