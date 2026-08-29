@@ -109,26 +109,47 @@ The roadmap defines a minimal P0 (propose → intercept → policy → phone →
 
 ## Current Status
 
-**Pre-hackathon preparation. Implementation has not started yet.**
+**Pre-hackathon preparation. Project skeleton established. No security logic is implemented yet.**
 
-The repository currently contains planning and technical documentation only. No source code, prototype, or runnable application exists at this time. Implementation will be created during the official iQOO Hackathon 2026 build window, per the roadmap in `TECHNICAL_APPROACH_V2.md`.
+The repository contains planning and technical documentation plus a module skeleton that establishes the directory structure and documents each component's responsibility. No application source code, prototype, or runnable security logic exists at this time. Implementation will be created during the official iQOO Hackathon 2026 build window.
 
 ## Repository Structure
-
-Only what currently exists:
 
 ```
 .
 ├── README.md
-├── TECHNICAL_APPROACH.md       (earlier planning draft)
-└── TECHNICAL_APPROACH_V2.md    (current roadmap, source of truth)
+├── ROADMAP FINAL.md
+├── TEAM_EXECUTION_PLAN_FINAL.md
+├── AGENTGATE_FEATURES_CURRENT_BUILD.md
+├── AgentGate_Judge_Submission.md
+├── .gitignore
+│
+├── server/                        ← laptop-side enforcement pipeline
+│   ├── README.md
+│   ├── policy/                    ← Deterministic Risk & Policy Engine [SKELETON]
+│   │   └── README.md
+│   ├── interceptor/               ← MCP Interception Layer [SKELETON]
+│   │   └── README.md
+│   ├── gate/                      ← Execution Gate [SKELETON]
+│   │   └── README.md
+│   └── relay/                     ← Relay Server [SKELETON]
+│       └── README.md
+│
+├── phone/                         ← Phone-side PWA approval interface [SKELETON]
+│   └── README.md
+│
+└── tests/                         ← Test suite [SKELETON]
+    └── README.md
 ```
 
-No source-code directories exist yet. They will be created during the event build window, following the structure decided in the roadmap as it is implemented.
+All `[SKELETON]` directories contain only a `README.md` documenting the module's
+responsibility. No source code has been written yet.
 
 ## Getting Started
 
-There is currently no runnable application in this repository, so no installation or run instructions are provided here. Setup and run instructions will be added once implementation begins during the hackathon build window.
+There is currently no runnable application in this repository. The skeleton
+establishes module boundaries only. Setup and run instructions will be added
+once implementation begins during the hackathon build window.
 
 ## Hackathon Build Strategy
 
