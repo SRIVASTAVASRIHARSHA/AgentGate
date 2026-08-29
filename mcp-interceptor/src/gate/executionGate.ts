@@ -21,6 +21,7 @@
  */
 
 import crypto from "node:crypto";
+import { hashAction } from "../hashing/hash.js";
 import { getPublicKey } from "./credentialRegistry.js";
 import { recordGateAttempt } from "./auditLog.js";
 import { updateStatus, getAction } from "../pendingStore.js";
@@ -36,15 +37,6 @@ import type {
  */
 export interface GateOptions {
   /**
-   * Optional action-hash verification hook for Task A4.
-   * Enables seamless integration of SHA-256 canonical action binding without refactoring.
-   */
-  actionHashValidator?: (
-    action: ProposedAction,
-    token: AuthorizationToken
-  ) => boolean;
-
-  /**
    * Optional custom timestamp for deterministic testing.
    */
   now?: () => string;
@@ -58,10 +50,12 @@ export interface GateOptions {
 export function createAuthorizationStatement(
   action_id: string,
   decision: string,
+  action_hash: string,
   signed_at: string
 ): string {
   return JSON.stringify({
     action_id,
+    action_hash,
     decision,
     signed_at,
   });
@@ -73,13 +67,18 @@ export function createAuthorizationStatement(
  * Used by test suites and future phone-side / client-side mock tools.
  */
 export function signAuthorizationToken(
-  action_id: string,
+  action: ProposedAction,
   decision: "approved" | "denied",
   credential_id: string,
   privateKeyPem: string,
   signed_at: string = new Date().toISOString()
 ): AuthorizationToken {
-  const statement = createAuthorizationStatement(action_id, decision, signed_at);
+  const statement = createAuthorizationStatement(
+    action.action_id,
+    decision,
+    action.action_hash,
+    signed_at
+  );
   const data = Buffer.from(statement, "utf8");
 
   let signature: string;
@@ -92,8 +91,9 @@ export function signAuthorizationToken(
   }
 
   return {
-    action_id,
+    action_id: action.action_id,
     decision,
+    action_hash: action.action_hash,
     credential_id,
     signature,
     signed_at,
@@ -114,6 +114,7 @@ export function verifyTokenSignature(
     const statement = createAuthorizationStatement(
       token.action_id,
       token.decision,
+      token.action_hash,
       token.signed_at
     );
     const data = Buffer.from(statement, "utf8");
@@ -161,6 +162,7 @@ export function evaluateAuthorization(
     !token.decision ||
     !token.credential_id ||
     !token.signature ||
+    !token.action_hash ||
     !token.signed_at
   ) {
     return {
@@ -208,16 +210,25 @@ export function evaluateAuthorization(
     };
   }
 
-  // 7. Action-hash extension hook (Task A4 interface boundary)
-  if (options?.actionHashValidator) {
-    const isHashValid = options.actionHashValidator(action, token);
-    if (!isHashValid) {
-      return {
-        valid: false,
-        status: "BLOCKED",
-        reason: "Action hash verification failed: action modified after authorization",
-      };
-    }
+  // 7. Recompute the exact semantic action hash at the final enforcement point.
+  // This must be mandatory: a token for action A cannot authorize altered action B.
+  let recomputedHash: string;
+  try {
+    recomputedHash = hashAction(action.payload);
+  } catch {
+    return {
+      valid: false,
+      status: "BLOCKED",
+      reason: "Action hash verification failed: action payload cannot be canonicalized",
+    };
+  }
+
+  if (action.action_hash !== recomputedHash || token.action_hash !== recomputedHash) {
+    return {
+      valid: false,
+      status: "BLOCKED",
+      reason: "Action hash verification failed: action modified after authorization",
+    };
   }
 
   // All checks passed
