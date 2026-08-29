@@ -181,3 +181,86 @@ export interface ActionStatusResult {
   /** Set when status is BLOCKED or DENIED — reason for the block */
   readonly reason?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Authorization token types (Task A3 / A4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Human authorization decision.
+ */
+export type HumanDecision = "approved" | "denied";
+
+/**
+ * AuthorizationToken represents the signed decision from the authorized device (phone).
+ *
+ * CRITICAL SECURITY PROPERTY:
+ * The Execution Gate on the laptop independently re-verifies this token against
+ * the cached public key for `credential_id`. It does not rely on a transport flag.
+ */
+export interface AuthorizationToken {
+  /** The action_id this authorization claims to bind to */
+  readonly action_id: string;
+
+  /** The human decision: "approved" | "denied" */
+  readonly decision: HumanDecision;
+
+  /** Identifier of the credential / device key that signed this token */
+  readonly credential_id: string;
+
+  /** Cryptographic signature over the authorization statement (base64) */
+  readonly signature: string;
+
+  /** ISO 8601 timestamp when the authorization was signed */
+  readonly signed_at: string;
+
+  /**
+   * Action hash for future Task A4 cryptographic binding.
+   * Defined here as an optional field to establish a clean A3/A4 boundary.
+   */
+  readonly action_hash?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Execution Gate decision & audit types
+// ---------------------------------------------------------------------------
+
+/**
+ * The outcome produced by the Execution Gate when evaluating an action execution request.
+ */
+export interface GateDecisionResult {
+  /** True ONLY if independent cryptographic verification succeeded and decision was approved */
+  readonly allowed: boolean;
+
+  /** Resulting lifecycle status */
+  readonly status: ActionStatus;
+
+  /** Explicit reason for the decision */
+  readonly reason: string;
+
+  /** The action_id evaluated */
+  readonly action_id: string;
+
+  /** Whether the protected action was executed by the gate */
+  readonly executed: boolean;
+
+  /** Output or return value if execution occurred */
+  readonly execution_output?: string;
+}
+
+/**
+ * Record written to the SQLite audit log on every execution gate attempt.
+ *
+ * SECURITY: Must not store private keys, secrets, or credential material.
+ */
+export interface AuditLogRecord {
+  readonly id?: number;
+  readonly action_id: string;
+  readonly command: string;
+  readonly target: string;
+  readonly decision: "ALLOW" | "BLOCK";
+  readonly status: ActionStatus;
+  readonly reason: string;
+  readonly credential_id: string | null;
+  readonly timestamp: string;
+}
