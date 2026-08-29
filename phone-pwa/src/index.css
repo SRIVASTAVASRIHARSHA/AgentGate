@@ -1,0 +1,68 @@
+:root {
+  /* Base — deep navy/dark blue */
+  --bg-color: #081220;
+
+  /* Text — clean whites and subtle grays for contrast on dark blue */
+  --text-primary: #F5F7FA;        /* Clean white */
+  --text-secondary: #A8B2C1;      /* Subtle gray-blue */
+  --text-muted: #627080;          /* Muted blue-gray */
+
+  /* Blue/purple accent — modern app style */
+  --color-accent: #6B9EFF;        /* Soft blue */
+  --color-accent-bright: #8BB9FF; /* Bright blue */
+  --color-accent-dim: rgba(107, 158, 255, 0.08);
+  --color-accent-border: rgba(107, 158, 255, 0.2);
+
+  /* Glow colors */
+  --color-blue-glow: rgba(70, 90, 255, 0.12);
+  --color-purple-glow: rgba(80, 60, 220, 0.08);
+
+  /* Semantic */
+  --color-success: #10b981;
+  --color-warning: #D6A21D;       /* Use gold for warning — matches palette */
+  --color-danger: #ef4444;
+
+  color-scheme: dark;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: linear-gradient(135deg, #081220 0%, #0F172A 40%, #111C33 70%, #0D1620 100%);
+  /* Subtle blue/purple radial glow areas for premium feel */
+  background-image:
+    linear-gradient(135deg, #081220 0%, #0F172A 40%, #111C33 70%, #0D1620 100%),
+    radial-gradient(circle at 20% 10%, rgba(70, 90, 255, 0.12), transparent 35%),
+    radial-gradient(circle at 85% 70%, rgba(80, 60, 220, 0.08), transparent 35%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  #root {
+    max-width: 1024px;
+    padding: 0 40px;
+  }
+}
