@@ -35,7 +35,7 @@ export async function notifyRelay(action: ProposedAction): Promise<void> {
   console.log(
     `[relayClient] STUB: would forward action ${action.action_id} to relay-server`
   );
-  console.log(
-    `[relayClient] STUB: action type="${action.payload.type}" command="${action.payload.command}" target="${action.payload.target}"`
-  );
+  // Do not emit commands or targets: they can contain secrets and are not
+  // required for diagnosing a relay hand-off.
+  console.log(`[relayClient] STUB: action type="${action.payload.type}"`);
 }

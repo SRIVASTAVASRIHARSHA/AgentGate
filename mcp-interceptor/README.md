@@ -31,11 +31,12 @@ EXECUTE / BLOCK
 | `gate/` | Execution Gate: independently re-verifies action hash and authorization token |
 | `hashing/` | Canonical action serialization and SHA-256 hash generation |
 
-## Exposed MCP tools (planned)
+## Exposed MCP tools
 
 ### `propose_action`
 - **Input:** `{ type, command, target, params }`
-- **Effect:** Passes action through policy → hashing → stores as `PENDING` → triggers relay
+- **Effect:** Validates and normalizes the action, computes its hash, stores it
+  as `PENDING`, and triggers the relay boundary.
 - **Returns:** `{ action_id, status: "PENDING" }`
 
 ### `check_action_status`
@@ -65,20 +66,19 @@ interceptor is not a genuine security boundary.
 - **Persistence:** SQLite (pending-action store, audit log)
 - **Auth verification:** `@simplewebauthn/server` (re-verification at the gate)
 
-## What will eventually be implemented here
+## Implemented
 
-- `src/interceptor.ts` — MCP server entry point (stdio), registers MCP tools
-- `src/pendingStore.ts` — in-memory + SQLite store for pending actions
-- `src/policy/` — see `policy/README.md`
-- `src/gate/` — see `gate/README.md`
-- `src/hashing/` — see `hashing/README.md`
-- `package.json`, `tsconfig.json` — created when implementation begins
+- `src/interceptor.ts` — stdio MCP server with proposal and status tools.
+- `src/pendingStore.ts` — in-memory pending-action lifecycle store.
+- `src/hashing/` — canonical SHA-256 action binding.
+- `src/gate/` — independently verifying execution gate.
+- `demo-agent/` — MCP configuration and system-instruction templates for a
+  no-bypass demo profile.
 
 ## What is NOT implemented yet
 
-**Nothing is implemented.** This directory is a module boundary and planning
-document only. Created as part of the project skeleton before the hackathon
-build window opens.
+- Relay delivery, policy evaluation, persistent pending storage, and phone
+  authorization remain separate tasks.
 
 ## References
 
