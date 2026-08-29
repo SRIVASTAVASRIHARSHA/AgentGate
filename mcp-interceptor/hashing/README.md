@@ -40,20 +40,24 @@ approved hash. The gate blocks.
 
 This is the technical implementation of the "bait-and-switch" defense.
 
-## What will eventually be implemented here
+## Implemented
 
-- `canonicalize.ts` — deterministic JSON serialization of an action:
+- `src/hashing/canonicalize.ts` — deterministic JSON serialization of an action:
   sorted keys, no extra whitespace, UTF-8 encoding
-- `hash.ts` — SHA-256 over the canonical bytes (using Node.js `crypto`)
-- `types.ts` — `CanonicalAction`, `ActionHash` types
+- `src/hashing/hash.ts` — SHA-256 over the canonical bytes (using Node.js `crypto`)
+- The interceptor computes `action_hash` once the normalized payload is built.
+- The execution gate recomputes the hash immediately before execution and
+  blocks when either the proposed hash or signed token hash differs.
+- The signed authorization statement includes `action_id`, `action_hash`,
+  `decision`, and `signed_at`.
 
-**Note:** No external crypto library is needed. Node.js built-in `crypto`
-module provides SHA-256.
+The hash covers only the semantic action payload (`type`, `command`, `target`,
+`params`) and intentionally excludes instance metadata such as timestamps.
 
-## What is NOT implemented yet
+## Not implemented yet
 
-**Nothing is implemented.** This directory is a module boundary and planning
-document only.
+- WebAuthn challenge creation and assertion verification (relay/phone work).
+- Replay prevention and authorization expiry (Task A9).
 
 ## Test that must pass
 

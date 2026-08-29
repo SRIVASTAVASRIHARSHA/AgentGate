@@ -30,6 +30,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { randomUUID } from "crypto";
+import { hashAction } from "./hashing/hash.js";
 import { addPending, getAction } from "./pendingStore.js";
 import { notifyRelay } from "./relayClient.js";
 import type {
@@ -133,14 +134,17 @@ export function normalizeActionType(raw: string | undefined): ActionType {
 export function buildProposedAction(
   input: z.infer<typeof ProposeActionInputSchema>
 ): ProposedAction {
+  const payload = {
+    type: normalizeActionType(input.type),
+    command: input.command.trim(),
+    target: input.target.trim(),
+    params: input.params ?? {},
+  };
+
   return {
     action_id: randomUUID(),
-    payload: {
-      type: normalizeActionType(input.type),
-      command: input.command.trim(),
-      target: input.target.trim(),
-      params: input.params ?? {},
-    },
+    payload,
+    action_hash: hashAction(payload),
     proposed_at: new Date().toISOString(),
   };
 }

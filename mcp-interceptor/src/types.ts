@@ -94,6 +94,9 @@ export interface ProposedAction {
   /** The semantic action payload to be evaluated and authorized */
   readonly payload: ActionPayload;
 
+  /** SHA-256 hash of the canonical semantic payload, calculated at proposal time. */
+  readonly action_hash: string;
+
   /** ISO 8601 timestamp when the action entered the interceptor */
   readonly proposed_at: string;
 }
@@ -214,11 +217,8 @@ export interface AuthorizationToken {
   /** ISO 8601 timestamp when the authorization was signed */
   readonly signed_at: string;
 
-  /**
-   * Action hash for future Task A4 cryptographic binding.
-   * Defined here as an optional field to establish a clean A3/A4 boundary.
-   */
-  readonly action_hash?: string;
+  /** SHA-256 fingerprint of the exact semantic action being authorized. */
+  readonly action_hash: string;
 }
 
 // ---------------------------------------------------------------------------

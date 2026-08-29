@@ -12,7 +12,7 @@
  *   8. ACTION ID MISMATCH: Token for action A presented for action B → BLOCK
  *   9. AUDIT LOGGING: Every attempt produces a detailed SQLite record (no secrets stored)
  *  10. EXECUTION BOUNDARY: Executor function is called ONLY on successful authorization
- *  11. A4 HOOK INTEGRATION: actionHashValidator failure blocks execution
+ *  11. A4 ACTION BINDING: a signed action hash blocks payload tampering
  *
  * Test framework: Vitest
  */
@@ -134,7 +134,7 @@ describe("Execution Gate — Valid Authorization", () => {
     addPending(action);
 
     const token = signAuthorizationToken(
-      action.action_id,
+      action,
       "approved",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem
@@ -160,7 +160,7 @@ describe("Execution Gate — Valid Authorization", () => {
   it("produces APPROVED status when authorization is valid without an executor callback", async () => {
     const action = createSampleAction();
     const token = signAuthorizationToken(
-      action.action_id,
+      action,
       "approved",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem
@@ -181,7 +181,7 @@ describe("Execution Gate — Tamper & Invalid Signature Rejection", () => {
   it("blocks execution when the signature is corrupted/tampered", async () => {
     const action = createSampleAction();
     const validToken = signAuthorizationToken(
-      action.action_id,
+      action,
       "approved",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem
@@ -209,7 +209,7 @@ describe("Execution Gate — Tamper & Invalid Signature Rejection", () => {
   it("blocks execution when the signed timestamp is modified after signing", async () => {
     const action = createSampleAction();
     const token = signAuthorizationToken(
-      action.action_id,
+      action,
       "approved",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem,
@@ -243,6 +243,7 @@ describe("Execution Gate — Independent Verification Requirement", () => {
       decision: "approved" as const,
       credential_id: primaryDevice.credential_id,
       signature: "", // missing signature
+      action_hash: action.action_hash,
       signed_at: new Date().toISOString(),
       verified: true, // transport flag attempt
       approved: true, // transport flag attempt
@@ -271,7 +272,7 @@ describe("Execution Gate — Human Denial", () => {
     addPending(action);
 
     const token = signAuthorizationToken(
-      action.action_id,
+      action,
       "denied",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem
@@ -305,7 +306,7 @@ describe("Execution Gate — Unregistered Credential Rejection", () => {
 
     // Signed with secondaryDevice (not in credentialRegistry)
     const token = signAuthorizationToken(
-      action.action_id,
+      action,
       "approved",
       secondaryDevice.credential_id,
       secondaryDevice.privateKeyPem
@@ -329,7 +330,7 @@ describe("Execution Gate — Action ID Binding", () => {
 
     // Authorize Action A
     const tokenForA = signAuthorizationToken(
-      actionA.action_id,
+      actionA,
       "approved",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem
@@ -363,7 +364,7 @@ describe("Execution Gate — SQLite Audit Trail", () => {
 
     // Attempt 2: Allowed
     const token = signAuthorizationToken(
-      action2.action_id,
+      action2,
       "approved",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem
@@ -401,13 +402,14 @@ describe("Execution Gate — SQLite Audit Trail", () => {
       decision: "approved",
       credential_id: primaryDevice.credential_id,
       signature: "invalid",
+      action_hash: action.action_hash,
       signed_at: new Date().toISOString(),
     };
     await verifyAndExecute(action, invalidToken);
 
     // 2nd attempt: allowed
     const validToken = signAuthorizationToken(
-      action.action_id,
+      action,
       "approved",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem
@@ -422,30 +424,36 @@ describe("Execution Gate — SQLite Audit Trail", () => {
 });
 
 // ---------------------------------------------------------------------------
-// 9. A4 EXTENSION HOOK (ACTION HASH VALIDATION)
+// 9. A4 ACTION HASH BINDING
 // ---------------------------------------------------------------------------
 
-describe("Execution Gate — Task A4 Hook Boundary", () => {
-  it("blocks execution when the Task A4 actionHashValidator returns false", async () => {
-    const action = createSampleAction();
+describe("Execution Gate — Action Hash Binding", () => {
+  it("blocks execution when an approved action is modified after signing", async () => {
+    const approvedAction = createSampleAction("rm -rf /safe/dir");
     const token = signAuthorizationToken(
-      action.action_id,
+      approvedAction,
       "approved",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem
     );
 
+    // Simulate a bait-and-switch that retains the instance ID but changes
+    // the semantic command after the user approved it.
+    const tamperedAction: ProposedAction = {
+      ...approvedAction,
+      payload: {
+        ...approvedAction.payload,
+        command: "rm -rf /critical/production/data",
+      },
+    };
+
     let executed = false;
     const result = await verifyAndExecute(
-      action,
+      tamperedAction,
       token,
       () => {
         executed = true;
         return "ran";
-      },
-      {
-        // Simulate A4 hash mismatch
-        actionHashValidator: (_act, _tok) => false,
       }
     );
 
@@ -455,10 +463,10 @@ describe("Execution Gate — Task A4 Hook Boundary", () => {
     expect(result.reason).toMatch(/action hash verification failed/i);
   });
 
-  it("allows execution when the Task A4 actionHashValidator returns true", async () => {
+  it("allows execution when the signed hash matches the exact action", async () => {
     const action = createSampleAction();
     const token = signAuthorizationToken(
-      action.action_id,
+      action,
       "approved",
       primaryDevice.credential_id,
       primaryDevice.privateKeyPem
@@ -471,10 +479,6 @@ describe("Execution Gate — Task A4 Hook Boundary", () => {
       () => {
         executed = true;
         return "ran";
-      },
-      {
-        // Simulate A4 hash match
-        actionHashValidator: (_act, _tok) => true,
       }
     );
 

@@ -128,6 +128,7 @@ describe("ActionPayload contract — semantic data vs ephemeral metadata", () =>
 
     // Outer ProposedAction holds the metadata
     expect(action).toHaveProperty("action_id");
+    expect(action).toHaveProperty("action_hash");
     expect(action).toHaveProperty("proposed_at");
     expect(action).toHaveProperty("payload");
   });
@@ -208,6 +209,7 @@ describe("buildProposedAction — deterministic structure", () => {
     const action = buildProposedAction(validRawInput());
     const requiredMetadata: (keyof ProposedAction)[] = [
       "action_id",
+      "action_hash",
       "payload",
       "proposed_at",
     ];
